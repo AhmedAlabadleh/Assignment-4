@@ -19,10 +19,10 @@ Usage: ./bench <rows1> <cols1> <cols2> <run forever? 0/1>
 
 Your matrix multiplication program should implement four functions:
 
-- `void generate_random_matrix(int nrows, int ncols)` which generates a nrows x ncols matrix filled with random values using `rand()`.
-- `void multiply_matrices(int rows1, int cols1, int *matrix1, int rows2, int cols2, int *matrix2, int *result)` which generates a new output matrix by performing a matrix multiply between input matrix A and B.
+- `generate_random_matrix(int nrows, int ncols)` which generates a nrows x ncols matrix filled with random values using `rand()`.
+- `multiply_matrices(int rows1, int cols1, int *matrix1, int rows2, int cols2, int *matrix2, int *result)` which generates a new output matrix by performing a matrix multiply between input matrix A and B.
 - `void display_matrix(int rows, int cols, int *matrix)` prints the matrix to STDOUT for debugging purposes. 
-- `float do_job(int rows1, int cols1, int cols2, int forever)` the main "engine" of the program. It should generate matrices of the specified size, multiply them, either one time if forever =0, or in a loop if forever=1.
+- `int do_job(int rows1, int cols1, int cols2, int forever)` the main "engine" of the program. It should generate matrices of the specified size, multiply them, either one time if forever =0, or in a loop if forever=1.
 
 ```shell
 $ ./bench 100 100 100 0
@@ -134,26 +134,36 @@ Schedules a 100x100 matrix multiplication with "niceness" 10. Niceness ranges fr
 
 ## Part 5: Interactive Job Dispatching
 
-Now, we want to create an "interactive" version of our matrix multiplication engine that takes in a list of jobs and implements a simple scheduling policy.
+Now, we will create an “interactive” version of the matrix multiplication engine. The program accepts a list of matrix multiplication jobs and runs them using a selected scheduling policy.
+
+A **job of size `n`** consists of generating two random `n × n` matrices and multiplying them together. Therefore, each number in the comma-separated list represents one complete matrix multiplication job.
 
 We will implement two scheduling policies:
-- FIFO (first-in-first-out)
-- SJF (shortest job first)
 
-Matrix multiplication has a nice property-- the size of the matrix correlates directly to the time required to complete the task!
+- **FIFO (first-in, first-out):** Runs the jobs in the order in which they were provided.
+- **SJF (shortest job first):** Runs the jobs in ascending order by matrix size.
 
-This engine will take in arguments in the format:
+Matrix multiplication has a useful property for this exercise: larger matrices generally require more time to multiply. Therefore, the matrix dimension can be used as an estimate of a job’s execution time.
+
+The program will accept command-line arguments in the following format:
+
+```text
+Usage: ./interactive <FIFO/SJF> <job_sizes_comma_separated>
 ```
-Usage: ./interactive <FIFO/SJF> <job_sizes_comma_separated> 
+
+For example:
+
+```bash
+./interactive SJF 100,200,50
 ```
 
-Then, the program will:
-- Parse the inputs from the user of jobs to run in the format `100,200,400` meaning matrix multiply a 100x100 matrices, 200x200 matrices, 400x400 matrices.
-- At the end of a line it will schedule and run all of those jobs with the chosen scheduling policy. (FIFO for fifo, or SJF for SJF)
-- The program will report on the throughput and average response time.
+This command specifies three jobs:
 
-You should do the necessary bookkeeping to report throughput and average response time. 
+1. Multiply two `100 × 100` matrices.
+2. Multiply two `200 × 200` matrices.
+3. Multiply two `50 × 50` matrices.
 
+With FIFO scheduling, these jobs would run in the order `100, 200, 50`. With SJF scheduling, they would run in the order `50, 100, 200`.
 
 > [!IMPORTANT]
 > **TASK:** Create `interactive.c` which allows users to input in new job requests via the command line. Implement a simple shortest-job-first scheduling policy in your interactive matrix multiplication program.
